@@ -17,6 +17,7 @@ class SchedulesTab extends StatefulWidget {
 }
 
 class SchedulesTabState extends State<SchedulesTab> {
+  FocusNode focus = new FocusNode();
   List stations;
   List availableTrains;
   Station startStation;
@@ -28,10 +29,7 @@ class SchedulesTabState extends State<SchedulesTab> {
     print("fetch all stations");
     var response = await http.get(
         Uri.encodeFull("http://localhost:3000/stations"),
-        headers: {
-          "Accept": "application/json"
-        }
-    );
+        headers: {"Accept": "application/json"});
     this.setState(() {
       stations = json.decode(response.body);
     });
@@ -39,6 +37,35 @@ class SchedulesTabState extends State<SchedulesTab> {
 
   void _fetchAvailableTrains() async {
     print("do async fetch with start and end stops");
+  }
+
+  void onFocusChange() {
+    print("detected text tap, show modal");
+    print(this.focus.hasFocus.toString());
+    if (this.focus.hasFocus) {
+      //end text field has focus show endstation modal
+      showModalBottomSheet(
+          context: this.context,
+          builder: (BuildContext context) {
+            return new Container(
+                child: new Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: new ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 3,
+                      itemBuilder: (context, int index) {
+                        return new Text('hello world');
+                      },
+                    )
+          });
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    focus.addListener(this.onFocusChange);
   }
 
   @override
@@ -60,10 +87,7 @@ class SchedulesTabState extends State<SchedulesTab> {
                   child: new GestureDetector(
                     child: new TextField(
                       decoration: new InputDecoration(
-                          border: InputBorder.none,
-                          hintText: "Start Station"
-                      ),
-                      enabled: false,
+                          border: InputBorder.none, hintText: "Start Station"),
                     ),
                     onTap: () {
                       print("tap detected");
@@ -72,25 +96,28 @@ class SchedulesTabState extends State<SchedulesTab> {
                 ),
                 new Card(
                   child: new TextField(
+                    focusNode: focus,
                     decoration: new InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "End Station"
-                    ),
-                    enabled: false,
+                        border: InputBorder.none, hintText: "End Station"),
                   ),
                 ),
                 new FlatButton(
                   onPressed: () {
                     print("hello world");
-                  }, child: new Text("search"),
-                  color: Colors.blue,)
+                  },
+                  child: new Text("search"),
+                  color: Colors.blue,
+                )
               ],
             ),
           ),
-          new Expanded(
-              child: new Container(
-                  decoration: new BoxDecoration(color: Colors.blue),
-                  child: new StationList()))
+          new ListView.builder(
+            shrinkWrap: true,
+            itemCount: 3,
+            itemBuilder: (context, int index) {
+            return new Text('hello world');
+            },
+          )
         ],
       ),
     );
